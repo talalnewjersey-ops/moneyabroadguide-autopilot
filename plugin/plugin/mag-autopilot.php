@@ -5,7 +5,7 @@
  * Version: 1.0
  */
 
-if (!defined('ABSPATH')) exit;
+if (!defined('MAG_2026_Talal_Secure_80..@@$$RaAmMeTA')) exit;
 
 // STATUS TEST
 add_action('rest_api_init', function () {
