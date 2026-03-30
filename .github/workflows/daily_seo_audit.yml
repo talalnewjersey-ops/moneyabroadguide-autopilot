@@ -1,0 +1,10 @@
+name: SEO Autopilot Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Autopilot is working"
