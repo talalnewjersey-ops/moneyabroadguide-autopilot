@@ -1,0 +1,1 @@
+MoneyAbroadGuide Autopilot Plugin
