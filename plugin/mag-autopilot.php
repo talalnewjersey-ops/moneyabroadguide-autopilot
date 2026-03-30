@@ -1,35 +1,21 @@
-<?php
-/**
- * Plugin Name: MAG Autopilot Connector
- * Description: Connects WordPress with GitHub Autopilot system
- * Version: 1.0
- */
-
-if (!defined('ABSPATH')) exit;
-
-// 🔐 API KEY (change après)
-define('MAG_API_KEY', 'CHANGE_THIS_SECRET_KEY');
-
-// 📡 STATUS TEST
-add_action('rest_api_init', function () {
-    register_rest_route('mag/v1', '/status', [
-        'methods' => 'GET',
-        'callback' => function () {
-            return [
-                'status' => 'connected',
-                'site' => get_bloginfo('name'),
-                'url' => home_url()
-            ];
-        }
-    ]);
-});
-
-// 📄 GET POSTS
+// 📄 GET POSTS (SECURED)
 add_action('rest_api_init', function () {
     register_rest_route('mag/v1', '/posts', [
         'methods' => 'GET',
-        'callback' => function () {
+        'callback' => function (\WP_REST_Request $request) {
 
+            // 🔐 Vérifier API KEY
+            $api_key = $request->get_header('x-mag-api-key');
+
+            if ($api_key !== MAG_API_KEY) {
+                return new WP_Error(
+                    'forbidden',
+                    'Invalid API Key',
+                    ['status' => 403]
+                );
+            }
+
+            // 📄 Récupérer articles
             $posts = get_posts(['numberposts' => 5]);
 
             $data = [];
