@@ -8,7 +8,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Fetch posts from WordPress
+      - name: Fetch posts from WordPress (Cloudflare bypass)
         run: |
-          curl -H "x-mag-api-key: ${{ secrets.MAG_API_KEY }}" \
-          ${{ secrets.WP_URL }}/wp-json/mag/v1/posts
+          curl -L \
+          -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+          -H "x-mag-api-key: ${{ secrets.MAG_API_KEY }}" \
+          "${{ secrets.WP_URL }}/wp-json/mag/v1/posts"
