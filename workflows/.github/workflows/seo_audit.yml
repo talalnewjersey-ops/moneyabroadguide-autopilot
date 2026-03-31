@@ -1,0 +1,17 @@
+name: SEO Autopilot
+
+on:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Python
+        run: pip install requests beautifulsoup4
+
+      - name: Run audit
+        run: python workflows/site_audit.py
