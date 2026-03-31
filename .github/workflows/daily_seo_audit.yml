@@ -1,15 +1,17 @@
-name: MAG Autopilot Agent
+name: SEO Autopilot
 
 on:
   workflow_dispatch:
 
 jobs:
-  seo_agent:
+  audit:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Fetch posts from WordPress
-        run: |
-          curl -L \
-          -A "Mozilla/5.0" \
-          "https://moneyabroadguide.com/wp-json/mag/v1/posts"
+      - uses: actions/checkout@v3
+
+      - name: Install Python
+        run: pip install requests beautifulsoup4
+
+      - name: Run audit
+        run: echo "SEO agent working 🚀"
