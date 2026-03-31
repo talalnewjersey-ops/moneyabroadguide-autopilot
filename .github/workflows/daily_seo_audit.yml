@@ -1,10 +1,14 @@
-name: SEO Autopilot Test
+name: MAG Autopilot Agent
 
 on:
   workflow_dispatch:
 
 jobs:
-  test:
+  seo_agent:
     runs-on: ubuntu-latest
+
     steps:
-      - run: echo "Autopilot is working"
+      - name: Fetch posts from WordPress
+        run: |
+          curl -H "x-mag-api-key: ${{ secrets.MAG_API_KEY }}" \
+          ${{ secrets.WP_URL }}/wp-json/mag/v1/posts
