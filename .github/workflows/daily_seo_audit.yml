@@ -1,53 +1,47 @@
-name: MAG SEO Autopilot
-
-on:
-  workflow_dispatch:
-
-jobs:
-  seo_audit:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Python
-        run: pip install requests beautifulsoup4
-
-      - name: Real SEO Audit
+      - name: Advanced SEO Audit
         run: |
           python - <<EOF
           import requests
           from bs4 import BeautifulSoup
 
-          url = "https://moneyabroadguide.com"
+          urls = [
+              "https://moneyabroadguide.com",
+              "https://moneyabroadguide.com/wp-json/mag/v1/posts"
+          ]
+
           headers = {"User-Agent": "Mozilla/5.0"}
 
-          r = requests.get(url, headers=headers)
+          for url in urls:
+              print("\n====== CHECKING:", url, "======")
 
-          print("STATUS:", r.status_code)
+              try:
+                  r = requests.get(url, headers=headers)
+                  print("STATUS:", r.status_code)
 
-          if "Checking your browser" in r.text:
-              print("❌ Cloudflare blocking SEO bots")
-          else:
-              print("✅ Site accessible")
+                  if "Checking your browser" in r.text:
+                      print("❌ Cloudflare blocking SEO bots")
 
-          soup = BeautifulSoup(r.text, "html.parser")
+                  soup = BeautifulSoup(r.text, "html.parser")
 
-          title = soup.title.string if soup.title else "No title"
-          print("TITLE:", title)
+                  # TITLE
+                  title = soup.title.string if soup.title else "Missing"
+                  print("TITLE:", title)
 
-          meta = soup.find("meta", attrs={"name": "description"})
-          print("META:", meta.get("content") if meta else "❌ Missing")
+                  # META
+                  meta = soup.find("meta", attrs={"name": "description"})
+                  print("META:", meta.get("content") if meta else "Missing")
 
-          h1 = soup.find_all("h1")
-          print("H1 COUNT:", len(h1))
+                  # H1
+                  h1 = soup.find_all("h1")
+                  print("H1 COUNT:", len(h1))
+
+                  # LINKS
+                  links = soup.find_all("a")
+                  empty_links = [a for a in links if a.get("href") == "#" or not a.get("href")]
+
+                  print("TOTAL LINKS:", len(links))
+                  print("EMPTY LINKS:", len(empty_links))
+
+              except Exception as e:
+                  print("ERROR:", e)
           EOF
-
-      - name: SEO Recommendations
-        run: |
-          echo "===== SEO FIXES ====="
-          echo "1. Improve homepage title"
-          echo "2. Add meta descriptions"
-          echo "3. Fix H1 structure"
-          echo "4. Add internal links"
-          echo "5. Remove empty links"
