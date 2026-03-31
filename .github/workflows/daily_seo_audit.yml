@@ -42,3 +42,12 @@ jobs:
           h1 = soup.find_all("h1")
           print("H1 COUNT:", len(h1))
           EOF
+
+      - name: SEO Recommendations
+        run: |
+          echo "===== SEO FIXES ====="
+          echo "1. Improve homepage title"
+          echo "2. Add meta descriptions"
+          echo "3. Fix H1 structure"
+          echo "4. Add internal links"
+          echo "5. Remove empty links"
