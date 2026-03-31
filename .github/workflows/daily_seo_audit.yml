@@ -1,10 +1,10 @@
-name: SEO Autopilot
+name: MAG SEO Autopilot
 
 on:
   workflow_dispatch:
 
 jobs:
-  audit:
+  seo_audit:
     runs-on: ubuntu-latest
 
     steps:
@@ -13,5 +13,32 @@ jobs:
       - name: Install Python
         run: pip install requests beautifulsoup4
 
-      - name: Run audit
-        run: echo "SEO agent working 🚀"
+      - name: Real SEO Audit
+        run: |
+          python - <<EOF
+          import requests
+          from bs4 import BeautifulSoup
+
+          url = "https://moneyabroadguide.com"
+          headers = {"User-Agent": "Mozilla/5.0"}
+
+          r = requests.get(url, headers=headers)
+
+          print("STATUS:", r.status_code)
+
+          if "Checking your browser" in r.text:
+              print("❌ Cloudflare blocking SEO bots")
+          else:
+              print("✅ Site accessible")
+
+          soup = BeautifulSoup(r.text, "html.parser")
+
+          title = soup.title.string if soup.title else "No title"
+          print("TITLE:", title)
+
+          meta = soup.find("meta", attrs={"name": "description"})
+          print("META:", meta.get("content") if meta else "❌ Missing")
+
+          h1 = soup.find_all("h1")
+          print("H1 COUNT:", len(h1))
+          EOF
