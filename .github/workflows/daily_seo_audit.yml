@@ -48,7 +48,7 @@ for url in urls:
     print("META:", meta.get("content") if meta else "Missing")
 
     h1 = soup.find_all("h1")
-    print("H1 COUNT:", len(h1))
+    print("H1 COUNT:", len(h1)
 
     links = soup.find_all("a")
     empty_links = [a for a in links if a.get("href") == "#" or not a.get("href")]
