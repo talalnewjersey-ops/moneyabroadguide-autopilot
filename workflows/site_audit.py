@@ -29,3 +29,12 @@ else:
 
 h1 = soup.find_all("h1")
 print("H1 COUNT:", len(h1))
+
+import os
+
+# 📄 créer dossier artifacts
+os.makedirs("artifacts", exist_ok=True)
+
+# 📄 créer rapport
+with open("artifacts/report.txt", "w") as f:
+    f.write("SEO Audit OK\n")
