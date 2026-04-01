@@ -17,6 +17,8 @@ jobs:
         run: pip install requests beautifulsoup4
 
       - name: Run safe audit
+      - name: Run SAFE SEO optimizer
+        run: python workflows/seo_safe_optimizer.py
         env:
           WP_URL: https://moneyabroadguide.com
         run: python workflows/safe_site_audit.py
