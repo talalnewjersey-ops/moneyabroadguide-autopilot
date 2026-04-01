@@ -2,7 +2,7 @@ import requests
 import os
 
 WP_URL = "https://moneyabroadguide.com/wp-json/wp/v2/posts"
-WP_USER = os.getenv("WP_USER")
+WP_USER = os.getenv("WP_USER"
 WP_PASSWORD = os.getenv("WP_PASSWORD")
 
 def get_posts():
