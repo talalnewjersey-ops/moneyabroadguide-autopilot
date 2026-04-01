@@ -8,13 +8,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: |
-          pip install requests beautifulsoup4
+        run: pip install requests beautifulsoup4
 
-      - name: Run audit script
-        run: |
-          python workflows/site_audit.py
+      - name: Run audit
+        run: python workflows/site_audit.py
+
+      - name: Save report
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-report
+          path: artifacts/
