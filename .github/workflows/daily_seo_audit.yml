@@ -8,19 +8,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 📥 Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 🐍 Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
+      # 📦 Install dependencies (lightweight)
       - name: Install dependencies
         run: pip install requests
 
-      - name: Debug files (IMPORTANT)
+      # 🔍 Debug files (optional but useful)
+      - name: Debug files
         run: ls -R
 
+      # 🚀 RUN SCRIPT (FIXED WITH ENV VARIABLES)
       - name: Run SAFE SEO optimizer
         run: python seo_safe_optimizer.py
+        env:
+          WP_URL: ${{ secrets.WP_URL }}
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_PASSWORD: ${{ secrets.WP_PASSWORD }}
