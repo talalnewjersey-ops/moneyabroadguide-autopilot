@@ -17,7 +17,7 @@ jobs:
         run: python workflows/site_audit.py
 
       - name: Run optimizer
-       run: python workflows/seo_optimizer.py
+        run: python workflows/seo_optimizer.py
 
       - name: Save report
         uses: actions/upload-artifact@v4
