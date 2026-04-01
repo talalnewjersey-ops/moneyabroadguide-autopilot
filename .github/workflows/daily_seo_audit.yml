@@ -2,64 +2,19 @@ name: MAG SEO Autopilot
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 9 * * *'
 
 jobs:
-  seo_agent:
+  seo_audit:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
-
-      - name: Advanced SEO Audit
         run: |
-          python <<EOF
-import requests
-from bs4 import BeautifulSoup
+          pip install requests beautifulsoup4
 
-urls = [
-    "https://moneyabroadguide.com"
-]
-
-headers = {"User-Agent": "Mozilla/5.0"}
-
-for url in urls:
-    print("\n====== CHECKING:", url, "======")
-
-    r = requests.get(url, headers=headers)
-    print("STATUS:", r.status_code)
-
-    soup = BeautifulSoup(r.text, "html.parser")
-
-    title = soup.title.string if soup.title else "Missing"
-    print("TITLE:", title)
-
-    meta = soup.find("meta", attrs={"name": "description"})
-    print("META:", meta.get("content") if meta else "Missing")
-
-    h1 = soup.find_all("h1")
-    print("H1 COUNT:", len(h1)
-
-    links = soup.find_all("a")
-    empty_links = [a for a in links if a.get("href") == "#" or not a.get("href")]
-
-    print("TOTAL LINKS:", len(links))
-    print("EMPTY LINKS:", len(empty_links))
-EOF
-
-      - name: SEO Recommendations
+      - name: Run audit script
         run: |
-          echo "Fix titles"
-          echo "Add meta descriptions"
-          echo "Improve H1 structure"
-          echo "Fix empty links"
+          python workflows/site_audit.py
