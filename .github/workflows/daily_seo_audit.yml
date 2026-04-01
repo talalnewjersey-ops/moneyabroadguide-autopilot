@@ -1,26 +1,33 @@
-name: MAG SEO Autopilot
+name: MAG Safe SEO Guard
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "20 10 * * *"
 
 jobs:
-  seo_audit:
+  safe_guard:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install lightweight dependencies
         run: pip install requests beautifulsoup4
 
-      - name: Run audit
-        run: python workflows/site_audit.py
+      - name: Run safe audit
+        env:
+          WP_URL: https://moneyabroadguide.com
+        run: python workflows/safe_site_audit.py
 
-      - name: Run optimizer
-        run: python workflows/seo_optimizer.py
+      - name: Run safe recommendations
+        env:
+          WP_URL: https://moneyabroadguide.com
+        run: python workflows/safe_seo_guard.py
 
-      - name: Save report
+      - name: Upload reports
         uses: actions/upload-artifact@v4
         with:
-          name: seo-report
+          name: mag-safe-seo-report
           path: artifacts/
