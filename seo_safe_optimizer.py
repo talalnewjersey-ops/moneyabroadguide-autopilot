@@ -1,8 +1,9 @@
 import os
 import base64
 import requests
+import json
 
-print("🔗 INTERNAL LINKING MODE ACTIVATED")
+print("🚀 SCHEMA + MONEY MODE ACTIVATED")
 
 WP_URL = os.getenv("WP_URL")
 WP_USER = os.getenv("WP_USER")
@@ -18,52 +19,67 @@ HEADERS = {
 
 POSTS_URL = f"{WP_URL}/wp-json/wp/v2/posts?per_page=10&_fields=id,title,content,link"
 
-START = "<!-- MAG_LINKS_START -->"
-END = "<!-- MAG_LINKS_END -->"
+START = "<!-- MAG_SCHEMA_START -->"
+END = "<!-- MAG_SCHEMA_END -->"
 
 
 def get_posts():
-    r = requests.get(POSTS_URL, headers=HEADERS)
-    return r.json()
+    return requests.get(POSTS_URL, headers=HEADERS).json()
 
 
-def remove_old_links(content):
+def clean_old(content):
     if START in content:
         return content.split(START)[0]
     return content
 
 
-def generate_links(current_post, all_posts):
-    links = []
+def generate_schema(post):
+    title = post["title"]["rendered"]
+    url = post["link"]
 
-    for post in all_posts:
-        if post["id"] != current_post["id"]:
-            title = post["title"]["rendered"]
-            url = post["link"]
-            links.append(f'<li><a href="{url}">{title}</a></li>')
+    schema = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": title,
+        "author": {
+            "@type": "Person",
+            "name": "Talal Eddaouahiri"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "MoneyAbroadGuide"
+        },
+        "mainEntityOfPage": url
+    }
 
-    return links[:4]
+    return f'<script type="application/ld+json">{json.dumps(schema)}</script>'
 
 
-def build_block(post, all_posts):
-    links = generate_links(post, all_posts)
+def generate_money_block():
+    return """
+<div style="border:1px solid #ddd;padding:15px;margin:20px 0;">
+<h3>💡 Recommended Tools for Newcomers</h3>
+<p>Compare the best money transfer services and save on fees.</p>
+<a href="#" target="_blank">👉 Compare Best Services</a>
+</div>
 
-    return f"""
-{START}
-<h3>Related Guides</h3>
-<ul>
-{''.join(links)}
-</ul>
-{END}
+<!-- ADSENSE PLACEHOLDER -->
+<div style="margin:20px 0;text-align:center;">
+<p>Advertisement</p>
+</div>
 """
 
 
-def update_post(post, all_posts):
+def update_post(post):
     post_id = post["id"]
     content = post["content"]["rendered"]
 
-    base = remove_old_links(content)
-    new_content = base + build_block(post, all_posts)
+    base = clean_old(content)
+
+    schema = generate_schema(post)
+    money = generate_money_block()
+
+    new_content = base + f"\n{START}\n{schema}\n{money}\n{END}"
 
     url = f"{WP_URL}/wp-json/wp/v2/posts/{post_id}"
 
@@ -78,9 +94,9 @@ def main():
     print(f"Posts found: {len(posts)}")
 
     for post in posts:
-        update_post(post, posts)
+        update_post(post)
 
-    print("✅ INTERNAL LINKING DONE")
+    print("✅ SCHEMA + MONEY DONE")
 
 
 if __name__ == "__main__":
