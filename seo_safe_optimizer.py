@@ -1,10 +1,10 @@
-import requests
 import os
 import base64
+import requests
+import json
 
-# ========================
-# CONFIG
-# ========================
+print("🔒 SAFE MODE ACTIVATED (NO CONTENT CREATION)")
+
 WP_URL = os.getenv("WP_URL")
 WP_USER = os.getenv("WP_USER")
 WP_PASSWORD = os.getenv("WP_PASSWORD")
@@ -17,116 +17,92 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-# ========================
-# GET POSTS
-# ========================
+POSTS_URL = f"{WP_URL}/wp-json/wp/v2/posts?per_page=10&_fields=id,title,content,excerpt,link"
+
+START = "<!-- MAG_SAFE_BLOCK -->"
+END = "<!-- /MAG_SAFE_BLOCK -->"
+
+
 def get_posts():
-    url = f"{WP_URL}/wp-json/wp/v2/posts?per_page=10"
-    response = requests.get(url, headers=HEADERS)
+    r = requests.get(POSTS_URL, headers=HEADERS)
+    if r.status_code != 200:
+        raise Exception("❌ Cannot fetch posts")
+    return r.json()
 
-    if response.status_code != 200:
-        print("❌ Error fetching posts:", response.text)
-        return []
 
-    return response.json()
+def clean_title(title):
+    title = title.strip()
 
-# ========================
-# SEO OPTIMIZATION LOGIC
-# ========================
-def optimize_post(post):
-    title = post["title"]["rendered"]
-    content = post["content"]["rendered"]
-
-    # SAFETY
-    if len(content) < 800:
-        print("⏭ Skipped (too short)")
-        return None
-
-    # ========================
-    # NEW TITLE (CTR BOOST)
-    # ========================
     if "2026" not in title:
-        new_title = title + " (2026 Guide)"
-    else:
-        new_title = title
+        title = title + " (2026 Guide)"
 
-    # ========================
-    # META DESCRIPTION
-    # ========================
-    meta_desc = f"Discover everything about {title.lower()} in this updated 2026 guide for newcomers in the USA and Canada. Save money and avoid costly mistakes."
+    if len(title) > 65:
+        title = title[:64] + "…"
 
-    # ========================
-    # INTRO IMPROVEMENT
-    # ========================
-    intro = f"""
-<p><strong>Updated for 2026:</strong> If you're a newcomer in the USA or Canada, understanding {title.lower()} is essential to avoid costly mistakes and build a strong financial future.</p>
+    return title
+
+
+def build_excerpt(title):
+    return f"{title}. Practical guide for newcomers to USA and Canada."[:150]
+
+
+def remove_old_block(content):
+    if START in content:
+        return content.split(START)[0]
+    return content
+
+
+def build_block(post):
+    return f"""
+{START}
+<p><strong>Author:</strong> Talal Eddaouahiri – Finance expert for newcomers in USA & Canada</p>
+<p><strong>Disclaimer:</strong> Educational purposes only. Not financial advice.</p>
+<p><a href="/">More guides on MoneyAbroadGuide.com</a></p>
+{END}
 """
 
-    # ========================
-    # INTERNAL LINKING (SAFE)
-    # ========================
-    internal_block = """
-<h3>Related Guides</h3>
-<ul>
-<li><a href="/best-banks-for-newcomers-canada">Best Banks for Newcomers in Canada</a></li>
-<li><a href="/build-credit-score-usa">How to Build Credit Score in the USA</a></li>
-<li><a href="/money-transfer-apps-usa">Best Money Transfer Apps USA</a></li>
-</ul>
-"""
 
-    # ========================
-    # CTA (LIGHT)
-    # ========================
-    cta = """
-<p><strong>💡 Tip:</strong> Always compare banking and transfer options to avoid hidden fees.</p>
-"""
+def backup(posts):
+    os.makedirs("artifacts", exist_ok=True)
+    with open("artifacts/backup.json", "w") as f:
+        json.dump(posts, f)
 
-    # ========================
-    # FINAL CONTENT
-    # ========================
-    new_content = intro + content + internal_block + cta
 
-    return {
+def update_post(post, all_posts):
+    post_id = post["id"]
+
+    old_title = post["title"]["rendered"]
+    old_content = post["content"]["rendered"]
+
+    new_title = clean_title(old_title)
+    new_excerpt = build_excerpt(new_title)
+
+    base_content = remove_old_block(old_content)
+    new_content = base_content + build_block(post)
+
+    payload = {
         "title": new_title,
-        "content": new_content,
-        "meta": {
-            "_yoast_wpseo_metadesc": meta_desc
-        }
+        "excerpt": new_excerpt,
+        "content": new_content
     }
 
-# ========================
-# UPDATE POST
-# ========================
-def update_post(post_id, data):
     url = f"{WP_URL}/wp-json/wp/v2/posts/{post_id}"
-    response = requests.post(url, headers=HEADERS, json=data)
+    r = requests.post(url, headers=HEADERS, json=payload)
 
-    print(f"Status: {response.status_code}")
+    print(f"Update {post_id} → {r.status_code}")
 
-# ========================
-# MAIN
-# ========================
+
 def main():
-    print("🚀 START PRO SEO OPTIMIZER")
-
-    print("WP_URL:", WP_URL)
-    print("WP_USER:", WP_USER)
-    print("WP_PASSWORD OK:", bool(WP_PASSWORD))
-
     posts = get_posts()
-
     print(f"Posts found: {len(posts)}")
 
+    backup(posts)
+
     for post in posts:
-        print("Updating:", post["title"]["rendered"])
+        update_post(post, posts)
 
-        optimized = optimize_post(post)
+    print("✅ SAFE SEO DONE")
 
-        if not optimized:
-            continue
 
-        update_post(post["id"], optimized)
-
-# ========================
 if __name__ == "__main__":
     main()
