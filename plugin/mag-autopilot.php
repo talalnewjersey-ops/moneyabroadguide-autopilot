@@ -12,7 +12,7 @@ define('MAG_API_KEY', 'MAG_2026_Talal_Secure_80..@@$$RaAmMeTA');
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 define('MAG_EBOOK_URL',     'https://moneyabroadguide.com/build-your-credit-score-in-the-usa-2026-edition/');
-define('MAG_CHECKOUT_URL',  'https://moneyabroadguide.gumroad.com/l/vemvxw');
+define('MAG_CHECKOUT_URL',  'https://moneyabroadguide.gumroad.com/l/vemvxw?wanted=true');
 define('MAG_EBOOK_TITLE',   'Build Your Credit Score in the USA – 2026 Edition');
 define('MAG_EBOOK_PRICE',   '$19.99');
 define('MAG_EBOOK_SLUG',    'build-your-credit-score-in-the-usa-2026-edition');
@@ -207,7 +207,7 @@ function mag_nav_ebook_cta() {
     ?>
     <script>
     (function(){
-        var EBOOK_URL = <?php echo json_encode(MAG_EBOOK_URL); ?>;
+        var EBOOK_URL = <?php echo json_encode(MAG_CHECKOUT_URL); ?>;
         var BOOK_SVG  = <?php echo json_encode($book_svg); ?>;
 
         function buildBtn(extraClass) {

@@ -27,7 +27,7 @@ EBOOK_SLUG     = "build-your-credit-score-in-the-usa-2026-edition"
 EBOOK_FULL_URL = f"{WP_URL}/{EBOOK_SLUG}/"
 
 # Gumroad checkout — all purchase buttons on the landing page point here.
-CHECKOUT_URL = "https://moneyabroadguide.gumroad.com/l/vemvxw"
+CHECKOUT_URL = "https://moneyabroadguide.gumroad.com/l/vemvxw?wanted=true"
 
 credentials = f"{WP_USER}:{WP_PASSWORD}"
 token       = base64.b64encode(credentials.encode()).decode()
