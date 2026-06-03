@@ -55,12 +55,37 @@ def generate_schema(post):
     return f'<script type="application/ld+json">{json.dumps(schema)}</script>'
 
 
+EBOOK_URL = "https://moneyabroadguide.com/build-your-credit-score-in-the-usa-2026-edition/"
+
+
 def generate_money_block():
-    return """
-<div style="border:1px solid #ddd;padding:15px;margin:20px 0;">
-<h3>💡 Recommended Tools for Newcomers</h3>
-<p>Compare the best money transfer services and save on fees.</p>
-<a href="#" target="_blank">👉 Compare Best Services</a>
+    return f"""
+<div style="border:2px solid #1a9e5f;padding:20px 24px;margin:28px 0;border-radius:10px;background:#f0fdf4;">
+  <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#1a9e5f;margin:0 0 8px;">
+    New for 2026
+  </p>
+  <h3 style="font-size:18px;font-weight:800;color:#111;margin:0 0 8px;line-height:1.3;">
+    Build Your Credit Score in the USA
+  </h3>
+  <p style="color:#444;font-size:15px;margin:0 0 14px;line-height:1.6;">
+    The complete step-by-step guide for newcomers — from zero credit to a strong score.
+    184 pages, beginner-friendly, instant download.
+  </p>
+  <a href="{EBOOK_URL}"
+     style="display:inline-block;background:#1a9e5f;color:#fff !important;font-weight:700;font-size:14px;
+            padding:11px 24px;border-radius:6px;text-decoration:none;">
+    Get Instant Access — $19.99
+  </a>
+</div>
+
+<div style="border:1px solid #e5e7eb;padding:16px 20px;margin:20px 0;border-radius:8px;">
+  <h3 style="font-size:16px;font-weight:700;color:#111;margin:0 0 8px;">
+    &#128161; Recommended Tools for Newcomers
+  </h3>
+  <p style="color:#555;font-size:14px;margin:0 0 10px;">Compare the best money transfer services and save on fees.</p>
+  <a href="/compare-fees/" style="color:#1a9e5f;font-weight:600;font-size:14px;text-decoration:none;">
+    &#128073; Compare Best Services &#8594;
+  </a>
 </div>
 
 <!-- ADSENSE PLACEHOLDER -->

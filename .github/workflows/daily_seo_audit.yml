@@ -2,6 +2,9 @@ name: MAG SEO Autopilot
 
 on:
   workflow_dispatch:
+  schedule:
+    # Runs daily at 06:00 UTC
+    - cron: '0 6 * * *'
 
 jobs:
   seo_audit:
@@ -18,17 +21,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      # 📦 Install dependencies (lightweight)
+      # 📦 Install dependencies
       - name: Install dependencies
         run: pip install requests
 
-      # 🔍 Debug files (optional but useful)
-      - name: Debug files
-        run: ls -R
-
-      # 🚀 RUN SCRIPT (FIXED WITH ENV VARIABLES)
-      - name: Run SAFE SEO optimizer
+      # 🚀 Run schema + money block optimizer (all posts)
+      - name: Run SEO + money block optimizer
         run: python seo_safe_optimizer.py
+        env:
+          WP_URL: ${{ secrets.WP_URL }}
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_PASSWORD: ${{ secrets.WP_PASSWORD }}
+
+      # 📗 Run landing page conversion optimizer (ebook page only)
+      - name: Run landing page optimizer
+        run: python landing_page_optimizer.py
         env:
           WP_URL: ${{ secrets.WP_URL }}
           WP_USER: ${{ secrets.WP_USER }}
