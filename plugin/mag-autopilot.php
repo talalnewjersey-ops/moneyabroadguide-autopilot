@@ -12,6 +12,7 @@ define('MAG_API_KEY', 'MAG_2026_Talal_Secure_80..@@$$RaAmMeTA');
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 define('MAG_EBOOK_URL',     'https://moneyabroadguide.com/build-your-credit-score-in-the-usa-2026-edition/');
+define('MAG_CHECKOUT_URL',  'https://moneyabroadguide.gumroad.com/l/vemvxw');
 define('MAG_EBOOK_TITLE',   'Build Your Credit Score in the USA – 2026 Edition');
 define('MAG_EBOOK_PRICE',   '$19.99');
 define('MAG_EBOOK_SLUG',    'build-your-credit-score-in-the-usa-2026-edition');
@@ -306,7 +307,7 @@ function mag_homepage_promo_banner() {
         <div class="mag-pb-eyebrow">New for 2026</div>
         <div class="mag-pb-title">Build Your Credit Score in the USA</div>
         <div class="mag-pb-price">Special Launch Price: <strong><?php echo MAG_EBOOK_PRICE; ?></strong></div>
-        <a href="<?php echo esc_url(MAG_EBOOK_URL); ?>" class="mag-pb-btn">Get Instant Access</a>
+        <a href="<?php echo esc_url(MAG_CHECKOUT_URL); ?>" class="mag-pb-btn">Get Instant Access</a>
     </div>
     <script>
     (function(){
@@ -347,7 +348,7 @@ function mag_sticky_mobile_cta() {
             <div class="mag-sc-name">Build Your Credit Score in the USA</div>
             <div class="mag-sc-price"><?php echo MAG_EBOOK_PRICE; ?></div>
         </div>
-        <a href="<?php echo esc_url(MAG_EBOOK_URL); ?>" class="mag-sc-btn">GET INSTANT ACCESS</a>
+        <a href="<?php echo esc_url(MAG_CHECKOUT_URL); ?>" class="mag-sc-btn">GET INSTANT ACCESS</a>
         <button class="mag-sc-close" id="mag-sc-close-btn" aria-label="Close">&times;</button>
     </div>
     <script>

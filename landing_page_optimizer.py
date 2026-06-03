@@ -26,10 +26,8 @@ WP_PASSWORD = os.getenv("WP_PASSWORD", "")
 EBOOK_SLUG     = "build-your-credit-score-in-the-usa-2026-edition"
 EBOOK_FULL_URL = f"{WP_URL}/{EBOOK_SLUG}/"
 
-# The actual purchase destination.  Point to the landing page so users can
-# choose their payment method from there.  Replace this with your payment
-# processor URL (e.g. Gumroad) once it is live.
-CHECKOUT_URL = EBOOK_FULL_URL
+# Gumroad checkout — all purchase buttons on the landing page point here.
+CHECKOUT_URL = "https://moneyabroadguide.gumroad.com/l/vemvxw"
 
 credentials = f"{WP_USER}:{WP_PASSWORD}"
 token       = base64.b64encode(credentials.encode()).decode()

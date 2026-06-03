@@ -55,7 +55,8 @@ def generate_schema(post):
     return f'<script type="application/ld+json">{json.dumps(schema)}</script>'
 
 
-EBOOK_URL = "https://moneyabroadguide.com/build-your-credit-score-in-the-usa-2026-edition/"
+EBOOK_LANDING_URL = "https://moneyabroadguide.com/build-your-credit-score-in-the-usa-2026-edition/"
+EBOOK_URL         = "https://moneyabroadguide.gumroad.com/l/vemvxw"  # Gumroad checkout
 
 
 def generate_money_block():
