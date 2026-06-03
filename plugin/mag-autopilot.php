@@ -356,10 +356,13 @@ function mag_sticky_mobile_cta() {
         var cta   = document.getElementById('mag-sticky-cta');
         var close = document.getElementById('mag-sc-close-btn');
         if (!cta || !close) return;
-        if (localStorage.getItem('mag_sticky_dismissed')) { cta.style.display = 'none'; return; }
+        var dismissed = localStorage.getItem('mag_sticky_dismissed');
+        if (dismissed && (Date.now() - parseInt(dismissed, 10)) < 86400000) {
+            cta.style.display = 'none'; return;
+        }
         close.addEventListener('click', function() {
             cta.style.display = 'none';
-            localStorage.setItem('mag_sticky_dismissed', '1');
+            localStorage.setItem('mag_sticky_dismissed', Date.now().toString());
         });
     })();
     </script>
