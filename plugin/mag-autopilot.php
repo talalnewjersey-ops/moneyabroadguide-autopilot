@@ -152,6 +152,7 @@ function mag_global_styles() {
         border-top: 2px solid #e5e7eb;
         z-index: 9999;
         padding: 10px 16px;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
         box-shadow: 0 -4px 16px rgba(0,0,0,.12);
         align-items: center;
         gap: 12px;
@@ -205,17 +206,16 @@ function mag_nav_ebook_cta() {
     ?>
     <script>
     (function(){
-        var EBOOK_URL  = <?php echo json_encode(MAG_EBOOK_URL); ?>;
-        var BOOK_SVG   = <?php echo json_encode($book_svg); ?>;
+        var EBOOK_URL = <?php echo json_encode(MAG_EBOOK_URL); ?>;
+        var BOOK_SVG  = <?php echo json_encode($book_svg); ?>;
 
-        function buildDesktopBtn() {
+        function buildBtn(extraClass) {
             var a = document.createElement('a');
             a.href = EBOOK_URL;
-            a.className = 'mag-ebook-nav-btn';
+            a.className = 'mag-ebook-nav-btn' + (extraClass ? ' ' + extraClass : '');
+            a.setAttribute('data-mag-ebook', '1');
             a.setAttribute('aria-label', 'Get the Ebook – Build Your Credit Score in the USA');
             a.innerHTML = BOOK_SVG + '<span class="mag-ebook-btn-text">GET YOUR EBOOK NOW</span>';
-
-            // Responsive text swap
             function updateText() {
                 var span = a.querySelector('.mag-ebook-btn-text');
                 if (span) span.textContent = window.innerWidth < 500 ? 'GET THE EBOOK' : 'GET YOUR EBOOK NOW';
@@ -225,74 +225,72 @@ function mag_nav_ebook_cta() {
             return a;
         }
 
-        function injectDesktopNav() {
-            var selectors = [
-                '.site-header-menu .menu',
-                '#site-navigation .nav-menu',
-                '.main-navigation .nav-menu',
-                '.main-navigation ul',
-                '#primary-menu',
-                '.header-navigation ul',
-                'header nav ul',
-                '.navbar-nav',
-                '.nav-links',
-            ];
+        // PRIMARY STRATEGY: anchor to the real "Compare Fees Now" control and
+        // insert our ebook CTA immediately BEFORE it — wherever it renders
+        // (desktop header AND mobile menu). This is theme-agnostic because it
+        // keys off the button the user can already see, not guessed selectors.
+        function injectBeforeCompare() {
+            var done = false;
+            var controls = document.querySelectorAll('a, button');
+            for (var i = 0; i < controls.length; i++) {
+                var el = controls[i];
+                var txt = (el.textContent || '').trim().toLowerCase();
+                if (txt.indexOf('compare fees') === -1) continue;
+                // Skip if our button is already the immediately-preceding sibling.
+                var prev = el.previousElementSibling;
+                if (prev && prev.getAttribute && prev.getAttribute('data-mag-ebook')) { done = true; continue; }
+                var target = el;
+                // If the compare control is wrapped in an <li>, insert a sibling <li>.
+                if (el.parentNode && el.parentNode.tagName === 'A') target = el.parentNode;
+                if (el.closest) { var li = el.closest('li'); if (li && li.parentNode) {
+                    var wrap = document.createElement('li');
+                    wrap.className = 'mag-ebook-nav-item';
+                    wrap.appendChild(buildBtn());
+                    li.parentNode.insertBefore(wrap, li);
+                    done = true; continue;
+                }}
+                target.parentNode.insertBefore(buildBtn(), target);
+                done = true;
+            }
+            return done;
+        }
+
+        // FALLBACK: drop into the first nav <ul> we can find.
+        function injectIntoNav() {
+            if (document.querySelector('[data-mag-ebook]')) return true;
+            var selectors = ['.main-navigation ul','#primary-menu','header nav ul',
+                             '.nav-menu','.navbar-nav','.nav-links','nav ul'];
             for (var i = 0; i < selectors.length; i++) {
                 var nav = document.querySelector(selectors[i]);
                 if (nav) {
                     var li = document.createElement('li');
                     li.className = 'mag-ebook-nav-item';
-                    li.appendChild(buildDesktopBtn());
+                    li.appendChild(buildBtn());
                     nav.insertBefore(li, nav.firstChild);
                     return true;
                 }
             }
-            // Fallback: inject directly before first nav link found in header
-            var header = document.querySelector('header');
-            if (header) {
-                var firstA = header.querySelector('a');
-                if (firstA && firstA.parentNode) {
-                    firstA.parentNode.insertBefore(buildDesktopBtn(), firstA);
-                    return true;
-                }
-            }
             return false;
         }
 
-        function injectMobileMenu() {
-            var mobileSelectors = [
-                '.mobile-menu ul',
-                '.mobile-nav ul',
-                '#mobile-menu ul',
-                '.nav-menu-mobile',
-                '.menu-mobile ul',
-                '[class*="mobile"] ul',
-                '.off-canvas-menu ul',
-                '.slide-menu ul',
-            ];
-            for (var i = 0; i < mobileSelectors.length; i++) {
-                var menu = document.querySelector(mobileSelectors[i]);
-                if (menu) {
-                    var li = document.createElement('li');
-                    li.className = 'mag-ebook-mobile-item-wrap';
-                    var a = document.createElement('a');
-                    a.href = EBOOK_URL;
-                    a.className = 'mag-ebook-mobile-item';
-                    a.innerHTML = BOOK_SVG + ' GET YOUR EBOOK NOW';
-                    li.appendChild(a);
-                    menu.insertBefore(li, menu.firstChild);
-                    return true;
-                }
-            }
-            return false;
+        function run() {
+            if (!injectBeforeCompare()) injectIntoNav();
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() { injectDesktopNav(); injectMobileMenu(); });
-        } else {
-            injectDesktopNav();
-            injectMobileMenu();
-        }
+            document.addEventListener('DOMContentLoaded', run);
+        } else { run(); }
+
+        // Re-run on dynamic menu changes (hamburger toggles, JS-hydrated themes,
+        // off-canvas menus that render their links only when opened). Debounced.
+        var t;
+        var mo = new MutationObserver(function(){
+            clearTimeout(t);
+            t = setTimeout(run, 150);
+        });
+        mo.observe(document.body, { childList: true, subtree: true });
+        // Stop observing after 20s to avoid perpetual work.
+        setTimeout(function(){ mo.disconnect(); }, 20000);
     })();
     </script>
     <?php
@@ -303,7 +301,7 @@ add_action('wp_footer', 'mag_homepage_promo_banner', 10);
 function mag_homepage_promo_banner() {
     if (!is_front_page() && !is_home()) return;
     ?>
-    <div id="mag-promo-banner" role="banner" aria-label="Ebook promotion">
+    <div id="mag-promo-banner" role="region" aria-label="Ebook promotion">
         <button class="mag-pb-close" id="mag-pb-close-btn" aria-label="Close promotion">&times;</button>
         <div class="mag-pb-eyebrow">New for 2026</div>
         <div class="mag-pb-title">Build Your Credit Score in the USA</div>
