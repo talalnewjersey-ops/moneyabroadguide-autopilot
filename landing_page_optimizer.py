@@ -267,12 +267,48 @@ def remove_unverified_claims(content: str) -> str:
 
 
 def fix_placeholder_links(content: str) -> str:
-    """Replace #buy and other placeholder hrefs with the checkout URL."""
-    content = re.sub(r'href=["\']#buy["\']', f'href="{CHECKOUT_URL}"', content, flags=re.IGNORECASE)
-    content = re.sub(r'href=["\']#checkout["\']', f'href="{CHECKOUT_URL}"', content, flags=re.IGNORECASE)
-    content = re.sub(r'href=["\']#purchase["\']', f'href="{CHECKOUT_URL}"', content, flags=re.IGNORECASE)
-    content = re.sub(r'href=["\']#get-now["\']', f'href="{CHECKOUT_URL}"', content, flags=re.IGNORECASE)
-    content = re.sub(r'href=["\']#order["\']', f'href="{CHECKOUT_URL}"', content, flags=re.IGNORECASE)
+    """Replace placeholder hrefs and demo onclick handlers with the Gumroad checkout URL."""
+
+    # ── href-based placeholders ───────────────────────────────────────────────
+    for frag in ('#buy', '#checkout', '#purchase', '#get-now', '#order'):
+        content = re.sub(
+            rf'href=(["\']){re.escape(frag)}\1',
+            f'href="{CHECKOUT_URL}"',
+            content, flags=re.IGNORECASE
+        )
+
+    # ── onclick demo alert handlers ───────────────────────────────────────────
+    # Matches: onclick="alert('Demo: Redirect to Stripe/PayPal...')"
+    # Replaces the onclick with a proper href on the same element.
+    content = re.sub(
+        r'''onclick=["'][^"']*(?:demo|alert)[^"']*["']''',
+        f'href="{CHECKOUT_URL}"',
+        content, flags=re.IGNORECASE | re.DOTALL
+    )
+
+    # ── any remaining onclick containing stripe/paypal/replace/placeholder ────
+    content = re.sub(
+        r'''onclick=["'][^"']*(?:stripe|paypal|replace\s+with|placeholder|checkout\s+link)[^"']*["']''',
+        f'href="{CHECKOUT_URL}"',
+        content, flags=re.IGNORECASE | re.DOTALL
+    )
+
+    # ── inline <script> blocks containing demo alert text ────────────────────
+    content = re.sub(
+        r'<script[^>]*>.*?(?:Demo.*?Stripe|Demo.*?PayPal|Replace with your actual checkout'
+        r'|alert\s*\([^)]*(?:demo|stripe|paypal)[^)]*\))[^<]*</script>',
+        '',
+        content, flags=re.IGNORECASE | re.DOTALL
+    )
+
+    # ── <button> elements with Buy Now / Purchase text but no real href ───────
+    # Converts  <button ...>Buy now...</button>  to a plain anchor pointing to Gumroad.
+    content = re.sub(
+        r'<button([^>]*)>\s*(Buy\s+now|Purchase\s+now|Get\s+instant\s+access)[^<]*</button>',
+        lambda m: f'<a href="{CHECKOUT_URL}" class="mag-buy-btn">{m.group(2)}</a>',
+        content, flags=re.IGNORECASE
+    )
+
     return content
 
 

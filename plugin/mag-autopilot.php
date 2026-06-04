@@ -339,6 +339,63 @@ function mag_homepage_promo_banner() {
     <?php
 }
 
+// ─── DEMO BUTTON NEUTRALISER ─────────────────────────────────────────────────
+// Scans every page for onclick demo handlers and Buy Now buttons that are not
+// wired to Gumroad, then replaces them client-side immediately on page load.
+add_action('wp_footer', 'mag_neutralise_demo_buttons', 1);
+function mag_neutralise_demo_buttons() {
+    ?>
+    <script>
+    (function(){
+        var CHECKOUT = <?php echo json_encode(MAG_CHECKOUT_URL); ?>;
+
+        function fix() {
+            // 1. Find every <a> and <button> whose onclick contains demo/alert/stripe/paypal text.
+            var els = document.querySelectorAll('[onclick]');
+            for (var i = 0; i < els.length; i++) {
+                var onclick = els[i].getAttribute('onclick') || '';
+                if (/demo|stripe|paypal|replace\s+with|placeholder|alert\s*\(/i.test(onclick)) {
+                    els[i].removeAttribute('onclick');
+                    if (els[i].tagName === 'A') {
+                        els[i].href = CHECKOUT;
+                    } else {
+                        // Convert button to anchor-like behaviour
+                        els[i].addEventListener('click', function(e) {
+                            e.preventDefault();
+                            window.location.href = CHECKOUT;
+                        });
+                    }
+                }
+            }
+
+            // 2. Find <a> tags whose text matches buy/purchase patterns but href is not Gumroad.
+            var anchors = document.querySelectorAll('a');
+            for (var j = 0; j < anchors.length; j++) {
+                var a = anchors[j];
+                var txt = (a.textContent || '').trim().toLowerCase();
+                var href = a.getAttribute('href') || '';
+                var looksBuyish = /buy.?now|purchase.?now|get.?instant|get.?access|buy.*\$/.test(txt);
+                var notGumroad  = href.indexOf('gumroad') === -1;
+                var isPlaceholder = (href === '' || href === '#' || /^#(buy|checkout|purchase|order)$/i.test(href));
+                if (looksBuyish && (notGumroad || isPlaceholder)) {
+                    a.href = CHECKOUT;
+                    a.removeAttribute('onclick');
+                }
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fix);
+        } else { fix(); }
+
+        // Also run after Elementor / page-builder JS finishes rendering.
+        setTimeout(fix, 1500);
+        setTimeout(fix, 4000);
+    })();
+    </script>
+    <?php
+}
+
 // ─── STICKY MOBILE CTA (ebook landing page + all pages) ──────────────────────
 add_action('wp_footer', 'mag_sticky_mobile_cta', 20);
 function mag_sticky_mobile_cta() {
